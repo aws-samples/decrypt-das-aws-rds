@@ -1,10 +1,17 @@
 # Processing a database activity stream using the AWS SDK for Python
 
-Amazon RDS pushes activities to an Amazon Kinesis data stream in near real time. The Kinesis stream is created automatically and it contains encrypted audit records.The same AWS KMS key that you supplied when you launched the database activity stream can be used to decrypt these database activities. 
+Amazon RDS sends database activities to an Amazon Kinesis data stream in near real time.The same AWS KMS key that you supplied when you launched the database activity stream can be used to decrypt these database activities. From Kinesis , you can monitor the activity stream, or other services and applications can consume the activity stream for further analysis. 
+Amazon RDS manages the Kinesis stream for you as follows:
+- Amazon RDS creates the Kinesis stream automatically with a 24-hour retention period.
+- Amazon RDS scales the Kinesis stream if necessary.
+- If you stop the database activity stream or delete the DB instance, Amazon RDS deletes the Kinesis stream.
 
-In this section, there are two lambda functions:
+### Architecture
+![architecture_diagram](Images/DAS-workflow.JPG)
 
-1. **rds-das-decrypt-kinesis-firehose.py** - This lambda function get invoke by Kinesis Data Firehose as a part of Data Transformation to decrypt the audit records and deliver the transformed data to destinations such as Amazon S3, AWS Opensearch, Splunk.
+The module consists of following two lambda functions:
+
+1. **rds-das-decrypt-kinesis-firehose.py** - This lambda function get invoke by Kinesis Data Firehose as a part of Data Transformation to decrypt the audit records and deliver the transformed data to destinations such as Amazon S3, AWS Opensearch, and third party monitoring tools like Splunk.
     
 2. **rds-das-decrypt-kinesis-opensearch.py** - This lambda function decodes and decrypts the database activities using the KMS key you provided when starting the database activity stream, filters heartbeat events and any of the events that belong to the 'rdsadmin' and 'rdssec' users, flattens the array of database activities events into individual rows, creates an opensearch index with mapping and ingests records into Amazon Opensearch Service using signing HTTP request. 
 

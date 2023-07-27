@@ -12,7 +12,7 @@ from aws_encryption_sdk.key_providers.raw import RawMasterKeyProvider
 from aws_encryption_sdk.identifiers import WrappingAlgorithm, EncryptionKeyType
 
 REGION_NAME = os.environ['AWS_REGION']
-RESOURCE_ID = os.environ['resource_id']
+RDS_RESOURCE_ID = os.environ['RDS_RESOURCE_ID']
 
 enc_client = aws_encryption_sdk.EncryptionSDKClient(commitment_policy=CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
 kms = boto3.client('kms', region_name=REGION_NAME)
@@ -56,10 +56,10 @@ def lambda_handler(event, context):
         payload_decoded = base64.b64decode(record_data['databaseActivityEvents'])
         data_key_decoded = base64.b64decode(record_data['key'])
 
-        if 'db' in RESOURCE_ID:
-            EncryptionContext={'aws:rds:db-id': RESOURCE_ID}
+        if 'db' in RDS_RESOURCE_ID:
+            EncryptionContext={'aws:rds:db-id': RDS_RESOURCE_ID}
         else:
-            EncryptionContext={'aws:rds:dbc-id': RESOURCE_ID}
+            EncryptionContext={'aws:rds:dbc-id': RDS_RESOURCE_ID}
             
         data_key_decrypt_result = kms.decrypt(CiphertextBlob=data_key_decoded,EncryptionContext=EncryptionContext)
 

@@ -12,7 +12,7 @@ from aws_encryption_sdk.key_providers.raw import RawMasterKeyProvider
 from aws_encryption_sdk.identifiers import WrappingAlgorithm, EncryptionKeyType
 
 REGION_NAME = os.environ['AWS_REGION']
-RDS_RESOURCE_ID = os.environ['RDS_RESOURCE_ID']
+RDS_RESOURCE_ID = os.environ['rds_resource_id']
 
 enc_client = aws_encryption_sdk.EncryptionSDKClient(commitment_policy=CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
 kms = boto3.client('kms', region_name=REGION_NAME)

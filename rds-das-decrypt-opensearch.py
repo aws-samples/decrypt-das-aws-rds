@@ -14,7 +14,7 @@ from aws_encryption_sdk.key_providers.raw import RawMasterKeyProvider
 from aws_encryption_sdk.identifiers import WrappingAlgorithm, EncryptionKeyType
 
 REGION_NAME = os.environ['AWS_REGION']
-RDS_RESOURCE_ID = os.environ['resource_id']
+RDS_RESOURCE_ID = os.environ['rds_resource_id']
 OPENSEARCH_HOST = os.environ['opensearch_host']
 OPENSEARCH_INDEX = os.environ['opensearch_index']
 SECRET_NAME = os.environ['secret_name']

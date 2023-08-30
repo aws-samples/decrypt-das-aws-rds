@@ -17,7 +17,7 @@ REGION_NAME = os.environ['AWS_REGION']
 RDS_RESOURCE_ID = os.environ['rds_resource_id']
 OPENSEARCH_HOST = os.environ['opensearch_host']
 OPENSEARCH_INDEX = os.environ['opensearch_index']
-SECRET_NAME = os.environ['secret_name']
+OPENSEARCH_SECRET_NAME = os.environ['opensearch_secret_name']
 
 enc_client = aws_encryption_sdk.EncryptionSDKClient(commitment_policy=CommitmentPolicy.REQUIRE_ENCRYPT_ALLOW_DECRYPT)
 kms = boto3.client('kms', region_name=REGION_NAME)
@@ -26,7 +26,7 @@ kms = boto3.client('kms', region_name=REGION_NAME)
 def get_secret():
     session = boto3.session.Session()
     client = session.client(service_name='secretsmanager',region_name=REGION_NAME)
-    get_secret_value_response = client.get_secret_value(SecretId=SECRET_NAME)
+    get_secret_value_response = client.get_secret_value(SecretId=OPENSEARCH_SECRET_NAME)
     return get_secret_value_response       
 
 secret_string = json.loads(get_secret()['SecretString'])

@@ -1,4 +1,4 @@
-# Processing a database activity stream using the AWS SDK for Python
+# Processing Database Activity Streams using the AWS SDK for Python
 
 Amazon RDS sends database activities to an Amazon Kinesis data stream in near real time.The same AWS KMS key that you supplied when you launched the database activity stream can be used to decrypt these database activities. From Kinesis , you can monitor the activity stream, or other services and applications can consume the activity stream for further analysis. 
 Amazon RDS manages the Kinesis stream for you as follows:

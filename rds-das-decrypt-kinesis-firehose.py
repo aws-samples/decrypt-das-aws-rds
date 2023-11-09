@@ -47,9 +47,9 @@ def decrypt_decompress(payload, key):
         print("An exception occurred:", e)
 
 def lambda_handler(event, context):
-    for record in event['records']:
+    for record in event['Records']:
         output=[]
-        data = base64.b64decode(record['data'])
+        data = base64.b64decode(record['kinesis']['data'])
         record_data = json.loads(data)
         
         # Decode and decrypt the payload
@@ -72,7 +72,7 @@ def lambda_handler(event, context):
         events = json.loads(plaintext)
         plain_event = plaintext.encode("utf-8")
         output_record = {
-                'recordId': record['recordId'],
+                'recordId': record['eventID'],
                 'result': 'Ok',
                 'data': base64.b64encode(plaintext.encode("utf-8")).decode('utf-8')
                 }

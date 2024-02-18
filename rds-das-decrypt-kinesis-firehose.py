@@ -77,5 +77,4 @@ def lambda_handler(event, context):
             'data': base64.b64encode(plaintext.encode("utf-8")).decode('utf-8')
         }
         output.append(output_record)
-        print(output)
     return {'records': output}

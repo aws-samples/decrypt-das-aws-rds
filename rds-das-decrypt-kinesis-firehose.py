@@ -47,11 +47,11 @@ def decrypt_decompress(payload, key):
         print("An exception occurred:", e)
 
 def lambda_handler(event, context):
+    output=[]
     for record in event['records']:
-        output=[]
         data = base64.b64decode(record['data'])
         record_data = json.loads(data)
-        
+
         # Decode and decrypt the payload
         payload_decoded = base64.b64decode(record_data['databaseActivityEvents'])
         data_key_decoded = base64.b64decode(record_data['key'])
@@ -60,7 +60,7 @@ def lambda_handler(event, context):
             EncryptionContext={'aws:rds:db-id': RDS_RESOURCE_ID}
         else:
             EncryptionContext={'aws:rds:dbc-id': RDS_RESOURCE_ID}
-            
+
         data_key_decrypt_result = kms.decrypt(CiphertextBlob=data_key_decoded,EncryptionContext=EncryptionContext)
 
         if decrypt_decompress(payload_decoded, data_key_decrypt_result['Plaintext']) is None:
@@ -72,9 +72,10 @@ def lambda_handler(event, context):
         events = json.loads(plaintext)
         plain_event = plaintext.encode("utf-8")
         output_record = {
-                'recordId': record['recordId'],
-                'result': 'Ok',
-                'data': base64.b64encode(plaintext.encode("utf-8")).decode('utf-8')
-                }
+            'recordId': record['recordId'],
+            'result': 'Ok',
+            'data': base64.b64encode(plaintext.encode("utf-8")).decode('utf-8')
+        }
         output.append(output_record)
-        return {'records': output}
+        print(output)
+    return {'records': output}

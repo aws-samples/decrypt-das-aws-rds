@@ -27,7 +27,7 @@ source ./.venv/bin/activate
 pip3 install PyCrypto aws-encryption-sdk opensearch-py requests-aws4auth cryptography==3.4.8
 deactivate
 mkdir -p python && cd python
-cp -r ../.venv/lib64/python3.7/site-packages/* .
+cp -r ../.venv/lib64/python3.9/site-packages/* .
 cd ..
 zip -r das_layer.zip python
 aws lambda publish-layer-version --layer-name das-encryption --zip-file fileb://das_layer.zip --compatible-runtimes python3.9

@@ -86,16 +86,18 @@ def lambda_handler(event, context):
             if dbEvent['type'] == "heartbeat" or (dbEvent['dbUserName'] and dbEvent["dbUserName"] in ("RDSADMIN","RDSSEC")):
                 events['databaseActivityEventList'].remove(dbEvent)
     
-        # Send events to CloudWatch Logs one at a time (similar to OpenSearch approach)
+        # Send events to CloudWatch Logs
         if len(events['databaseActivityEventList']) > 0:
+            log_events = []
             for dbEvent in events['databaseActivityEventList']:
-                log_event = {}
-                log_event['logTime'] = dbEvent['logTime'].split('.')[0].split('+')[0]
-                log_event['pid'] = dbEvent['pid']
-                log_event['dbUserName'] = dbEvent['dbUserName']
-                log_event['databaseName'] = dbEvent['databaseName']
-                log_event['command'] = dbEvent['command']
-                log_event['commandText'] = dbEvent['commandText']
+                log_event = {
+                    'logTime': dbEvent['logTime'].split('.')[0].split('+')[0],
+                    'pid': dbEvent['pid'],
+                    'dbUserName': dbEvent['dbUserName'],
+                    'databaseName': dbEvent['databaseName'],
+                    'command': dbEvent['command'],
+                    'commandText': dbEvent['commandText']
+                }
                 
                 if 'engineNativeAuditFields' in dbEvent:
                     log_event['engineNativeAuditFields'] = dbEvent['engineNativeAuditFields']
@@ -104,14 +106,20 @@ def lambda_handler(event, context):
                 if 'endTime' in dbEvent and dbEvent['endTime'] is not None:
                     log_event['endTime'] = dbEvent['endTime'].split('.')[0].split('+')[0]
 
+                log_events.append({
+                    'timestamp': int(context.get_remaining_time_in_millis()),
+                    'message': json.dumps(log_event)
+                })
+
+            # Put log events in batches (CloudWatch Logs limit is 10000 events per batch)
+            batch_size = 10000
+            for i in range(0, len(log_events), batch_size):
+                batch = log_events[i:i + batch_size]
                 try:
                     logs.put_log_events(
                         logGroupName=LOG_GROUP_NAME,
                         logStreamName=LOG_STREAM_NAME,
-                        logEvents=[{
-                            'timestamp': int(context.get_remaining_time_in_millis()),
-                            'message': json.dumps(log_event)
-                        }]
+                        logEvents=batch
                     )
                 except Exception as e:
-                    print(f"Error sending log to CloudWatch: {str(e)}")
+                    print(f"Error sending logs to CloudWatch: {str(e)}")

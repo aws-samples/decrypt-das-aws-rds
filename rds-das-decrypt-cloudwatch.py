@@ -5,6 +5,7 @@ import boto3
 import base64
 import zlib
 import uuid
+import time
 import aws_encryption_sdk
 from aws_encryption_sdk import CommitmentPolicy
 from aws_encryption_sdk.internal.crypto import WrappingKey
@@ -109,7 +110,7 @@ def lambda_handler(event, context):
                         logGroupName=LOG_GROUP_NAME,
                         logStreamName=LOG_STREAM_NAME,
                         logEvents=[{
-                            'timestamp': int(context.get_remaining_time_in_millis()),
+                            'timestamp': int(time.time() * 1000),
                             'message': json.dumps(log_event)
                         }]
                     )
